@@ -1,5 +1,6 @@
 import time
 from datetime import datetime
+from selenium.webdriver.support.ui import Select
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
@@ -19,10 +20,10 @@ website_url = 'https://foreupsoftware.com/index.php/booking/19765/2431#teetimes'
 button_text = 'Resident'
 
 # rsv date
-date_to_click = 14
+date_to_click = 21
 
 # rsv time
-time_label_to_click = '12:10pm'
+time_label_to_click = '122:20pm'
 
 chrome_options = Options()
 chrome_options.add_argument(f'--user-data-dir={chrome_profile_path}')
@@ -35,7 +36,7 @@ service = Service(chrome_driver_path)
 driver = webdriver.Chrome(service=service, options=chrome_options)
 
 try:
-    target_time = datetime.now().replace(hour=1, minute=33, second=58, microsecond=0)
+    target_time = datetime.now().replace(hour=19, minute=50, second=0, microsecond=0)
     
     while datetime.now() < target_time:
         time.sleep(1)
@@ -50,6 +51,25 @@ try:
     resident_button.click()
 
     time.sleep(2)
+
+    # drop down element
+    select_element = driver.find_element(By.ID, 'schedule_select')
+
+    # select var
+    select = Select(select_element)
+
+    # drop down select
+    select.select_by_value('2432')
+
+    # Re-locate the select element after selecting the option
+    select_element = driver.find_element(By.ID, 'schedule_select')
+
+    # Create a new Select object with the updated reference
+    select = Select(select_element)
+
+    # Click on the selected option
+    selected_option = select.first_selected_option
+    selected_option.click()
 
     # var -> date click
     date_element = driver.find_element(By.XPATH, f'//td[@class="day" and text()="{date_to_click}"]')
@@ -75,4 +95,3 @@ try:
 finally:
     # Close the WebDriver session
     driver.quit()
- 
