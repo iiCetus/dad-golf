@@ -1,15 +1,11 @@
 import time
 from datetime import datetime
-from selenium.webdriver.support.ui import Select
-from selenium import webdriver
+from seleniumwire import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support import expected_conditions as EC
-
-# var for chrome driver
-chrome_driver_path = 'C:\\Users\\eshin\\Desktop\\chromedriver.exe'
 
 # url var
 website_url = 'https://foreupsoftware.com/index.php/booking/19765/2431#teetimes'
@@ -23,20 +19,16 @@ date_to_click = 23
 # rsv time
 time_label_to_click = '12:00pm'
 
-# Set up Chrome options with debuggerAddress
+# Set up Chrome options
 chrome_options = Options()
 chrome_options.add_argument("--start-maximized")
-chrome_options.add_experimental_option("debuggerAddress", "127.0.0.1:5556")  
-
-# service start var
-service = Service(executable_path=chrome_driver_path, chrome_args=["user-data-dir="])
+chrome_options.add_experimental_option("debuggerAddress", "127.0.0.1:5556")  # Use your existing Chrome debugging address
 
 # driver start var
-driver = webdriver.Chrome(service=service)
-
+driver = webdriver.Chrome(options=chrome_options)
 
 try:
-    target_time = datetime.now().replace(hour=18, minute=59, second=54, microsecond=30)
+    target_time = datetime.now().replace(hour=18, minute=59, second=58, microsecond=30)
 
     while datetime.now() < target_time:
         time.sleep(1)
@@ -44,39 +36,15 @@ try:
     # open site
     driver.get(website_url)
 
-    driver.maximize_window()
-
-
-
     # click first btn 'resident'
     resident_button = WebDriverWait(driver, 5).until(
         EC.element_to_be_clickable((By.XPATH, f'//button[@class="btn btn-primary col-md-4 col-xs-12 col-md-offset-4"][text()="{button_text}"]'))
     )
     resident_button.click()
 
-    # Wait for login button to appear and click it
-    login_button1 = WebDriverWait(driver, 5).until(
-        EC.visibility_of_element_located((By.XPATH, '//button[@class="btn btn-lg btn-primary login"]'))
+    select_element = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.ID, 'schedule_select'))
     )
-    login_button1.click()
-
-    # Input email and password
-    email_input = WebDriverWait(driver, 5).until(
-        EC.visibility_of_element_located((By.ID, 'login_email'))
-    )
-    email_input.send_keys('cineshin@hotmail.com')  # Replace with your email
-
-    password_input = driver.find_element(By.ID, 'login_password')
-    password_input.send_keys('feb@eddy0908')  # Replace with your password
-
-    # Click second login button
-    login_button2 = driver.find_element(By.XPATH, '//button[@class="btn btn-primary login col-xs-12 col-md-2"]')
-    login_button2.click()
-
-    time.sleep(2)
-
-    # drop down element
-    select_element = driver.find_element(By.ID, 'schedule_select')
 
     # select var
     select = Select(select_element)
@@ -85,7 +53,9 @@ try:
     select.select_by_value('2432')
 
     # Re-locate the select element after selecting the option
-    select_element = driver.find_element(By.ID, 'schedule_select')
+    select_element = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.ID, 'schedule_select'))
+    )
 
     # Create a new Select object with the updated reference
     select = Select(select_element)
